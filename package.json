@@ -1,0 +1,26 @@
+{
+  "name": "architectural-merchant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "client": "npm run dev --prefix CLIENT",
+    "server": "npm run dev --prefix SERVER",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "apexcharts": "^5.15.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.18.0",
+    "react-apexcharts": "^2.1.0",
+    "react-hook-form": "^7.79.0",
+    "yup": "^1.7.1"
+  }
+}

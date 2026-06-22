@@ -1,0 +1,62 @@
+/* 1. ALL IMPORTS MUST BE AT THE VERY TOP */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import "tailwindcss";
+
+/* 2. TAILWIND V4 LUXURY THEME */
+@theme {
+  --color-charcoal: #1A1A1A;
+  --color-charcoal-light: #2A2A2A;
+  --color-stone: #8C857B;
+  --color-stone-light: #A39D95;
+  --color-brass: #B89F7D;
+  --color-brass-hover: #A38A6A;
+  --color-ivory: #F7F5F0;
+  --color-ivory-dark: #EAE6DF;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+
+  --shadow-premium: 0 10px 40px -10px rgba(26, 26, 26, 0.08);
+  --shadow-premium-hover: 0 20px 40px -10px rgba(26, 26, 26, 0.12);
+
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 3. GLOBAL STYLES */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-brass);
+    color: white;
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-brass);
+  }
+
+  /* Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: var(--color-ivory);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(140 133 123 / 0.3); /* Stone with opacity */
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(140 133 123 / 0.5);
+  }
+}
