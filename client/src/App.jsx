@@ -19,7 +19,7 @@ import ProductDetails from "./pages/ProductDetails";
 
 // --- ADMIN PAGE IMPORTS ---
 import Dashboard from "./pages/dashboard/Dashboard";
-import InventoryList from "./features/inventory/InventoryList";
+import InventoryList from "./features/inventory/InventoryList.jsx";
 import AddProductBasic from "./pages/inventory/AddProductBasic";
 import AddProductLogistics from "./pages/inventory/AddProductLogistics";
 import OrdersList from "./features/orders/OrdersList";

@@ -1,35 +1,44 @@
 // src/services/apiSlice.js
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-baseQuery: fetchBaseQuery({
-    baseUrl: "https://architectural-merchant-api.onrender.com/api",
-}),
-  
+const baseQuery = fetchBaseQuery({
+  baseUrl: "https://architectural-merchant-api.onrender.com/api",
+
   prepareHeaders: (headers, { getState }) => {
-    // 1. Try to grab the token from Redux state first
+    // 1. Get token from Redux state
     let token = getState().auth?.token;
-    
-    // 2. FALLBACK: If Redux state is empty (e.g., user just refreshed the page),
-    // grab it directly from localStorage to prevent sudden 401 Unauthorized errors.
+
+    // 2. Fallback to localStorage after refresh
     if (!token) {
-      token = localStorage.getItem('accessToken');
+      token = localStorage.getItem("accessToken");
     }
-    
-    // 3. Attach the secure token using standard Capitalization
+
+    // 3. Attach Authorization header
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set("Authorization", `Bearer ${token}`);
     }
-    
+
+    headers.set("Content-Type", "application/json");
+
     return headers;
   },
 });
 
+
 export const apiSlice = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
+
   baseQuery,
-  // Added 'User' to the array for complete cache control
-  tagTypes: ['Product', 'Order', 'Analytics', 'User'], 
-  
-  // Endpoints remain empty here. We use apiSlice.injectEndpoints() in other files.
+
+  tagTypes: [
+    "Product",
+    "Order",
+    "Analytics",
+    "User",
+    "Cart",
+    "Wishlist"
+  ],
+
   endpoints: () => ({}),
 });
