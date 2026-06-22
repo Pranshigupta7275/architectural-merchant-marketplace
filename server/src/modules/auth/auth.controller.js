@@ -10,14 +10,11 @@ import { ApiError } from '../../utils/ApiError.js';
  * @access  Public
  */
 export const registerUser = async (req, res, next) => {
+  console.log("HEADERS:", req.headers);
+  console.log("BODY:", req.body);
+
   try {
     const { name, email, password, role } = req.body;
-
-    // 1. Validation
-    if (!name || !email || !password) {
-      return next(new ApiError(400, 'Please provide all required fields.'));
-    }
-
     // 2. Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
