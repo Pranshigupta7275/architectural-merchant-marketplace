@@ -1,10 +1,9 @@
 // src/services/apiSlice.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const baseQuery = fetchBaseQuery({
-  // CRITICAL NOTE: Because this ends in '/api', all injected endpoints 
-  // must NOT start with '/api'. (e.g., use '/products', not '/api/products')
-  baseUrl: 'http://localhost:5000/api', 
+baseQuery: fetchBaseQuery({
+    baseUrl: "https://architectural-merchant-api.onrender.com/api",
+}),
   
   prepareHeaders: (headers, { getState }) => {
     // 1. Try to grab the token from Redux state first
