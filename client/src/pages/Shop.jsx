@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react"; // Added AlertCircle for error UI
 
-// ✅ 1. IMPORT YOUR RTK QUERY HOOK
+// 1. IMPORT YOUR RTK QUERY HOOK
 import { useGetProductsQuery } from "../features/api/customerApi";
 
 // --- COMPONENTS ---
 import FilterDrawer from "./storefront/FilterDrawer";
 import ProductGrid from "./storefront/ProductGrid";
-import ShopToolbar from "../layout/ShopToolbar"; // Update path if needed
+import ShopToolbar from "../layout/ShopToolbar"; 
 
 export default function Shop() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -22,9 +22,8 @@ export default function Shop() {
   const maxPrice = searchParams.get("maxPrice") || "";
   const sort = searchParams.get("sort") || "";
 
-  // ✅ 3. FETCH REAL DATA FROM YOUR BACKEND
-  // Passes all active URL filters directly to your API
-  const { data, isLoading, isFetching } = useGetProductsQuery({
+  // 3. FETCH REAL DATA FROM YOUR BACKEND (Added isError for safety)
+  const { data, isLoading, isFetching, isError } = useGetProductsQuery({
     search: searchQuery,
     category: categoryQuery,
     minPrice,
@@ -32,8 +31,7 @@ export default function Shop() {
     sort,
   });
 
-  // Safely extract the products array from the API response
-  // Adjust this fallback depending on if your backend returns an array directly, or an object like { success: true, products: [...] }
+  // Safely extract the products array
   const products = data?.products || data || [];
 
   // 4. HANDLERS
@@ -56,11 +54,11 @@ export default function Shop() {
     ? `${categoryQuery} Collection`
     : "The Permanent Collection";
 
-  // Prevent layout jumps by knowing exactly when we are loading or refetching
   const showLoadingState = isLoading || isFetching;
 
   return (
     <div className="w-full bg-ivory min-h-screen pt-28 pb-32 relative z-10 pointer-events-auto">
+      
       {/* --- HEADER --- */}
       <header className="pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
         <motion.div
@@ -69,12 +67,14 @@ export default function Shop() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="flex items-center space-x-2 text-[10px] font-bold tracking-widest uppercase text-stone mb-8">
-            <span
-              className="hover:text-charcoal cursor-pointer transition-colors"
+            {/* Accessibility Fix: Changed span to button for keyboard navigation */}
+            <button
+              type="button"
+              className="hover:text-charcoal cursor-pointer transition-colors uppercase"
               onClick={handleClearFilters}
             >
               Home
-            </span>
+            </button>
             <span>/</span>
             <span className="text-charcoal capitalize">
               {categoryQuery ? categoryQuery : "The Collection"}
@@ -93,8 +93,8 @@ export default function Shop() {
               </p>
             </div>
             <div className="text-[11px] font-bold tracking-widest uppercase text-stone hidden md:block">
-              {/* Only show count when not loading to prevent layout jump */}
-              {!showLoadingState && `Showing ${products.length} Curations`}
+              {/* Only show count when strictly loaded and no errors */}
+              {!showLoadingState && !isError && `Showing ${products.length} Curations`}
             </div>
           </div>
         </motion.div>
@@ -107,24 +107,37 @@ export default function Shop() {
         onOpenFilters={() => setIsFilterOpen(true)}
       />
 
-      {/* --- PRODUCT GRID AREA --- */}
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 min-h-[400px]">
-        {/* Loading State Overlay */}
+      {/* --- PRODUCT GRID AREA (Fixed Conditional Rendering) --- */}
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 min-h-100">
         {showLoadingState ? (
+            
+          /* STATE 1: LOADING */
           <div className="w-full py-32 flex justify-center items-center">
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone animate-pulse">
               Curating Archive...
             </p>
           </div>
-        ) : (
-          <ProductGrid
-            products={products}
-            onClearFilters={handleClearFilters}
-          />
-        )}
 
-        {/* The Exact Empty State from your Screenshot */}
-        {!showLoadingState && products.length === 0 && (
+        ) : isError ? (
+            
+          /* STATE 2: BACKEND ERROR / OFFLINE */
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
+          >
+            <AlertCircle className="w-12 h-12 text-red-400 mb-4" strokeWidth={1} />
+            <h2 className="font-serif text-3xl text-charcoal mb-4">
+              Connection Interrupted
+            </h2>
+            <p className="text-stone text-sm max-w-md">
+              We are unable to load the archive right now. Please try refreshing the page.
+            </p>
+          </motion.div>
+
+        ) : products.length === 0 ? (
+            
+          /* STATE 3: EMPTY STATE (No curations match) */
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -137,10 +150,18 @@ export default function Shop() {
               No curations match your criteria.
             </h2>
             <p className="text-stone text-sm max-w-md">
-              Consider expanding your search parameters or clearing your
-              filters.
+              Consider expanding your search parameters or clearing your filters.
             </p>
           </motion.div>
+
+        ) : (
+            
+          /* STATE 4: DATA LOADED SUCCESSFULLY */
+          <ProductGrid
+            products={products}
+            onClearFilters={handleClearFilters}
+          />
+
         )}
       </div>
 

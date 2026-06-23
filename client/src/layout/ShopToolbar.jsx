@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Search, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 export default function ShopToolbar({
@@ -5,16 +6,36 @@ export default function ShopToolbar({
   setSearchQuery,
   onOpenFilters,
 }) {
+  // 1. Local state for instant typing feedback in the UI
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  // 2. Keep local input in sync if URL clears externally (e.g., clicking 'Home')
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  // 3. THE DEBOUNCER: Wait 400ms after typing stops to update the parent URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== searchQuery) {
+        setSearchQuery(localSearch);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer); // Cleanup if user keeps typing
+  }, [localSearch, setSearchQuery, searchQuery]);
+
   return (
     <div className="sticky top-20 z-30 bg-ivory/90 backdrop-blur-md border-y border-stone/15 mb-12">
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        
         {/* Interactive Search */}
         <div className="relative w-full sm:w-auto flex-1 max-w-sm group">
           <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-stone group-focus-within:text-brass transition-colors" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={localSearch} // Changed to use local state
+            onChange={(e) => setLocalSearch(e.target.value)} // Changed to update local state
             placeholder="Search the archive..."
             className="w-full bg-transparent border-none py-2 pl-8 pr-4 text-sm text-charcoal placeholder-stone focus:outline-none focus:ring-0"
           />
