@@ -19,7 +19,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors());
+
+app.use(cors({
+  origin: "https://architectural-merchant-marketplace.onrender.com",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true, 
+}));
+
 app.use(express.json());
 
 // Set up static folder for viewing uploaded images
