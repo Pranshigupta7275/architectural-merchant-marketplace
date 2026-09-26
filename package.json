@@ -19,8 +19,10 @@
     "apexcharts": "^5.15.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.18.0",
+    "razorpay": "^2.9.8",
     "react-apexcharts": "^2.1.0",
     "react-hook-form": "^7.79.0",
+    "stripe": "^22.6.1",
     "yup": "^1.7.1"
   }
 }
