@@ -3,8 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const customerApi = createApi({
   reducerPath: 'customerApi',
   baseQuery: fetchBaseQuery({
-    
-    baseUrl: '/api/v1', 
+    baseUrl: `${import.meta.env.VITE_API_BASE}/api/v1`, 
     prepareHeaders: (headers, { getState }) => {
       
       const token = 
@@ -76,7 +75,7 @@ export const customerApi = createApi({
     }),
 
     getCustomerOrders: builder.query({
-      query: () => '/orders/my-orders',
+      query: () => '/orders/myorders',
       providesTags: (result) => {
         const ordersArray = Array.isArray(result) ? result : result?.orders || result?.data || [];
         return [

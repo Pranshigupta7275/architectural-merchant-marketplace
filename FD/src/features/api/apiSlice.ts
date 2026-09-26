@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { setCredentials } from '../auth/authSlice';
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: '/api/v1',
+  baseUrl: `${import.meta.env.VITE_API_BASE}/api/v1`,
   prepareHeaders: (headers, { getState }: any) => {
     const token = getState().auth?.token || localStorage.getItem('accessToken');
     if (token) {

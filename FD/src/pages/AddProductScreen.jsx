@@ -164,7 +164,7 @@ const AddProductScreen = () => {
             <div className="mt-4">
               <p className="text-xs text-gray-500 mb-2">Preview:</p>
               <img
-                src={`http://localhost:5000${image}`}
+                src={`${import.meta.env.VITE_API_BASE}${image}`}
                 alt="Product Preview"
                 className="max-w-full max-h-48 rounded-lg border border-gray-200"
               />
