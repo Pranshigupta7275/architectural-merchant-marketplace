@@ -105,27 +105,47 @@ export default function CustomerLogin() {
       );
 
       // Preserve deep-link destination
-      const from = location.state?.from?.pathname;
+     const from = location.state?.from?.pathname;
+const userRole = response.user?.role;
 
-      if (from) {
-        navigate(from, {
-          replace: true,
-        });
-      } else if (response.user?.role === "customer") {
-        navigate("/shop");
-      } else if (
-        response.user?.role === "admin" ||
-        response.user?.role === "merchant"
-      ) {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-    } catch (err) {
-      console.error(
-        isLogin ? "Login failed:" : "Registration failed:",
-        err
-      );
+const canAccessAdmin =
+  userRole === "admin" ||
+  userRole === "merchant";
+
+if (
+  from &&
+  (!from.startsWith("/admin") || canAccessAdmin)
+) {
+  navigate(from, {
+    replace: true,
+  });
+
+  return;
+}
+
+if (canAccessAdmin) {
+  navigate("/admin", {
+    replace: true,
+  });
+
+  return;
+}
+
+if (userRole === "customer") {
+  navigate("/shop", {
+    replace: true,
+  });
+
+  return;
+}
+
+navigate("/", {
+  replace: true,
+});
+
+    } catch (error) {
+      // The mutation error is exposed through the RTK Query hook state.
+      console.error("Authentication failed:", error);
     }
   };
 

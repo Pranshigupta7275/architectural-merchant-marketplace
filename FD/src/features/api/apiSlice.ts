@@ -1,93 +1,161 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { setCredentials } from '../auth/authSlice';
+import {
+  createApi,
+  fetchBaseQuery,
+  type FetchArgs,
+  type BaseQueryApi,
+} from "@reduxjs/toolkit/query/react";
+
+import { setCredentials, logout } from "../auth/authSlice";
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: `${import.meta.env.VITE_API_BASE}/api/v1`,
-  prepareHeaders: (headers, { getState }: any) => {
-    const token = getState().auth?.token || localStorage.getItem('accessToken');
+  baseUrl: "/api/v1",
+
+  // IMPORTANT:
+  // Allows the browser to send the httpOnly refreshToken cookie.
+  credentials: "include",
+
+  prepareHeaders: (headers, { getState }) => {
+    const state = getState() as {
+      auth?: {
+        token?: string | null;
+      };
+    };
+
+    const token =
+      state.auth?.token ||
+      localStorage.getItem("accessToken");
+
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set("Authorization", `Bearer ${token}`);
     }
+
+    headers.set("Accept", "application/json");
+
     return headers;
   },
 });
 
-const baseQueryWithRefresh: any = async (args: any, api: any, extraOptions: any) => {
-  const timeout = 10000;
-  const timeoutPromise = new Promise((_, reject: any) => {
-    setTimeout(() => {
-      reject({
-        error: {
-          status: 'TIMEOUT',
-          data: { success: false, message: 'Request timed out. Please check your connection.' },
-        },
-      });
-    }, timeout);
-  });
+const baseQueryWithRefresh = async (
+  args: string | FetchArgs,
+  api: BaseQueryApi,
+  extraOptions: object
+) => {
+  let result = await rawBaseQuery(
+    args,
+    api,
+    extraOptions
+  );
 
-  try {
-    let result: any = await Promise.race([rawBaseQuery(args, api, extraOptions), timeoutPromise]);
+  /*
+   * If access token expired:
+   *
+   * 1. Call /auth/refresh.
+   * 2. Browser sends refreshToken cookie.
+   * 3. Backend returns new accessToken.
+   * 4. Save new token.
+   * 5. Retry original request.
+   */
+  if (result?.error?.status === 401) {
+    const refreshResult = await rawBaseQuery(
+      {
+        url: "/auth/refresh",
+        method: "POST",
+      },
+      api,
+      extraOptions
+    );
 
-    if (result?.error?.status === 401) {
-      const refreshResult: any = await rawBaseQuery(
-        { url: '/auth/refresh', method: 'POST' },
+    if (
+      refreshResult?.data &&
+      typeof refreshResult.data === "object" &&
+      "accessToken" in refreshResult.data
+    ) {
+      const refreshData = refreshResult.data as {
+        accessToken: string;
+      };
+
+      const currentUser = (
+        api.getState() as {
+          auth?: {
+            userInfo?: {
+              _id: string;
+              name: string;
+              email: string;
+              role: string;
+            } | null;
+          };
+        }
+      ).auth?.userInfo;
+
+      if (currentUser) {
+        api.dispatch(
+          setCredentials({
+            user: currentUser,
+            accessToken: refreshData.accessToken,
+          })
+        );
+      }
+
+      /*
+       * Retry original request with the new access token.
+       */
+      result = await rawBaseQuery(
+        args,
         api,
         extraOptions
       );
-
-      if (refreshResult?.data?.success && refreshResult?.data?.accessToken) {
-        api.dispatch(setCredentials({ accessToken: refreshResult.data.accessToken }));
-
-        const retryHeaders = new Headers();
-        const token = refreshResult.data.accessToken;
-        retryHeaders.set('Authorization', `Bearer ${token}`);
-
-        const retryArgs = {
-          ...args,
-          headers: retryHeaders,
-        };
-
-        result = await rawBaseQuery(retryArgs, api, extraOptions);
-      }
+    } else {
+      /*
+       * Refresh failed.
+       * Clear local authentication.
+       */
+      api.dispatch(logout());
     }
-
-    return result;
-  } catch (err) {
-    return err;
   }
+
+  return result;
 };
 
 export const apiSlice = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
+
   baseQuery: baseQueryWithRefresh,
+
   tagTypes: [
-    'Product',
-    'Order',
-    'Analytics',
-    'User',
-    'Cart',
-    'Wishlist',
-    'Customer',
-  ] as const,
+    "Product",
+    "Order",
+    "Analytics",
+    "User",
+    "Cart",
+    "Wishlist",
+    "Customer",
+  ],
+
   endpoints: (builder) => ({
     createStripeIntent: builder.mutation({
       query: (totalAmount) => ({
-        url: '/payments/stripe/create-intent',
-        method: 'POST',
-        body: { totalAmount },
+        url: "/payments/stripe/create-intent",
+        method: "POST",
+        body: {
+          totalAmount,
+        },
       }),
     }),
+
     createRazorpayOrder: builder.mutation({
       query: (totalAmount) => ({
-        url: '/payments/razorpay/create-order',
-        method: 'POST',
-        body: { totalAmount },
+        url: "/payments/razorpay/create-order",
+        method: "POST",
+        body: {
+          totalAmount,
+        },
       }),
     }),
+
     verifyRazorpayPayment: builder.mutation({
       query: (data) => ({
-        url: '/payments/razorpay/verify-payment',
-        method: 'POST',
+        url: "/payments/razorpay/verify-payment",
+        method: "POST",
         body: data,
       }),
     }),

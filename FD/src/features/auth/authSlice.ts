@@ -1,38 +1,87 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
+
+interface UserInfo {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 interface AuthState {
-  userInfo: { _id: string; name: string; email: string; role: string } | null;
+  userInfo: UserInfo | null;
   token: string | null;
 }
 
+const getStoredUser = (): UserInfo | null => {
+  try {
+    const storedUser = localStorage.getItem("userInfo");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    return JSON.parse(storedUser);
+  } catch (error) {
+    console.error("Invalid stored user:", error);
+
+    localStorage.removeItem("userInfo");
+
+    return null;
+  }
+};
+
 const initialState: AuthState = {
-  userInfo: JSON.parse(localStorage.getItem('userInfo') || 'null'),
-  token: localStorage.getItem('accessToken'),
+  userInfo: getStoredUser(),
+  token: localStorage.getItem("accessToken"),
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
+
   initialState,
+
   reducers: {
     setCredentials: (state, action) => {
-      const { user, accessToken } = action.payload;
+      const {
+        user,
+        accessToken,
+      } = action.payload;
+
       state.userInfo = user;
       state.token = accessToken;
-      localStorage.setItem('userInfo', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
+
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify(user)
+      );
+
+      localStorage.setItem(
+        "accessToken",
+        accessToken
+      );
     },
+
     logout: (state) => {
       state.userInfo = null;
       state.token = null;
-      localStorage.removeItem('userInfo');
-      localStorage.removeItem('accessToken');
+
+      localStorage.removeItem("userInfo");
+      localStorage.removeItem("accessToken");
     },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const {
+  setCredentials,
+  logout,
+} = authSlice.actions;
 
-export const selectCurrentUser = (state: { auth: AuthState }) => state.auth.userInfo;
-export const selectCurrentToken = (state: { auth: AuthState }) => state.auth.token;
+export const selectCurrentUser = (
+  state: { auth: AuthState }
+) => state.auth.userInfo;
+
+export const selectCurrentToken = (
+  state: { auth: AuthState }
+) => state.auth.token;
 
 export default authSlice.reducer;

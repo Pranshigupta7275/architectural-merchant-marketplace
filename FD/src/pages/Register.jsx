@@ -34,7 +34,7 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Create a Merchant Account
+          Create an Account
         </h2>
 
         {error && (
@@ -46,7 +46,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Business/Merchant Name
+              Full Name
             </label>
             <input
               type="text"
@@ -55,7 +55,7 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              placeholder="Acme Corp"
+              placeholder="John Doe"
             />
           </div>
 

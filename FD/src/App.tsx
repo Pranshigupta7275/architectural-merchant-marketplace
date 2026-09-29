@@ -62,7 +62,7 @@ export default function App() {
       {/* =========================================
           2. MERCHANT ADMIN DASHBOARD (Protected Domain)
            ========================================= */}
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute allowedRoles={['admin', 'merchant']} />}>
         <Route path="/admin" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="inventory" element={<InventoryList />} />

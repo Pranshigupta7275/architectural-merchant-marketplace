@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useLogoutApiCallMutation } from "../features/usersApiSlice";
+import { useLogoutMutation } from "../services/authApiSlice";
 import { logout } from "../features/auth/authSlice";
 
 const HeaderProfile = () => {
@@ -13,7 +13,7 @@ const HeaderProfile = () => {
 
   // 1. Grab the user data from Redux to know if they are logged in
   const { userInfo } = useSelector((state) => state.auth);
-  const [logoutApiCall] = useLogoutApiCallMutation();
+  const [logoutApiCall] = useLogoutMutation();
 
   // 2. Handle clicking outside to close the dropdown
   useEffect(() => {
