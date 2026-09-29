@@ -37,15 +37,49 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(helmet());
 
-app.use(cors({
-  origin: [
-    "https://architectural-merchant-marketplace.onrender.com", 
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  credentials: true, 
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://architectural-merchant-marketplace.onrender.com",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      /*
+       * Allow requests without an Origin header.
+       * Useful for server-to-server requests and health checks.
+       */
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(
+        new Error(`CORS blocked for origin: ${origin}`)
+      );
+    },
+
+    credentials: true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  })
+);
 
 app.use(express.json({ limit: '10kb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));

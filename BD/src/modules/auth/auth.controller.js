@@ -11,7 +11,7 @@ import { ApiError } from '../../utils/ApiError.js';
  */
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -22,7 +22,7 @@ export const registerUser = async (req, res, next) => {
       name,
       email,
       password,
-      role: role || 'customer',
+      role: 'customer',
     });
 
     const { accessToken, refreshToken } = generateTokens(user._id, user.role);
