@@ -3,7 +3,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const customerApi = createApi({
   reducerPath: 'customerApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_BASE}/api/v1`, 
+    // Same environment-based base as apiSlice.ts:
+    // production -> https://architectural-merchant-api.onrender.com/api/v1 (VITE_API_URL)
+    // local dev  -> relative "/api/v1", forwarded by the Vite dev proxy to localhost:5000
+    baseUrl: import.meta.env.VITE_API_URL || "/api/v1",
     prepareHeaders: (headers, { getState }) => {
       
       const token = 
