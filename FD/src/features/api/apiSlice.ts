@@ -8,7 +8,13 @@ import {
 import { setCredentials, logout } from "../auth/authSlice";
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: "/api/v1",
+  /*
+   * Production: VITE_API_URL points at the BD web service
+   * (https://architectural-merchant-api.onrender.com/api/v1).
+   * Local development: VITE_API_URL is unset, so the relative "/api/v1"
+   * is used and Vite's dev server proxy forwards it to localhost:5000.
+   */
+  baseUrl: import.meta.env.VITE_API_URL || "/api/v1",
 
   // IMPORTANT:
   // Allows the browser to send the httpOnly refreshToken cookie.
